@@ -42,7 +42,31 @@ curl_setopt($req, CURLOPT_COOKIEFILE, $cookie_file);
 curl_setopt($req, CURLOPT_RETURNTRANSFER, TRUE);
 $res = curl_exec($req);
 curl_close($req);
-print $res;
+preg_match_all('/\"seminar_main\.php\?auswahl=([0-9a-f]+)\"/', $res, $matches);
+
+// Iterate over all seminars.
+$skip = true;
+foreach ($matches[1] as $auswahl) {
+  // TODO: Do not skip the first entry.
+  if ($skip) {
+    $skip = false;
+    continue;
+  }
+
+  // Load the main seminar page.
+  $req = curl_init("https://studip.tu-clausthal.de/seminar_main.php?auswahl=" . urlencode($auswahl));
+  curl_setopt($req, CURLOPT_COOKIEJAR, $cookie_file);
+  curl_setopt($req, CURLOPT_COOKIEFILE, $cookie_file);
+  curl_setopt($req, CURLOPT_RETURNTRANSFER, TRUE);
+  $res = curl_exec($req);
+  curl_close($req);
+
+  // Extract the folder id.
+  if (preg_match('/\"folder.php\?cid=([0-9a-f]+)&/', $res, $match)) {
+    print_r($match);
+  }
+  break;
+}
 
 // Delete the cookie file.
 unlink($cookie_file);
