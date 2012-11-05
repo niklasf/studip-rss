@@ -63,7 +63,14 @@ foreach ($matches[1] as $auswahl) {
 
   // Extract the folder id.
   if (preg_match('/\"folder.php\?cid=([0-9a-f]+)&/', $res, $match)) {
-    print_r($match);
+    // Load the folder page.
+    $req = curl_init("https://studip.tu-clausthal.de/folder.php?cid=" . urlencode($match[1]) . "&data%5Bcmd%5D=tree&cmd=all");
+    curl_setopt($req, CURLOPT_COOKIEJAR, $cookie_file);
+    curl_setopt($req, CURLOPT_COOKIEFILE, $cookie_file);
+    curl_setopt($req, CURLOPT_RETURNTRANSFER, TRUE);
+    $res = curl_exec($req);
+    print $res;
+    curl_close($req);
   }
   break;
 }
