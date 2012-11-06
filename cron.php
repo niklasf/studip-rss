@@ -84,19 +84,29 @@ foreach ($matches[1] as $auswahl) {
     foreach ($matches as $match) {
       $filename = "files/" . $match[1];
 
-      // Skip existing files.
-      if (file_exists($filename)) {
-        continue;
+      // Download the file.
+      if (!file_exists($filename)) {
+        $req = curl_init(STUDIP_RSS_SOURCE. "sendfile.php?force_download=1&type=0&file_id=" . urlencode($match[1]));
+        curl_setopt($req, CURLOPT_COOKIEJAR, $cookie_file);
+        curl_setopt($req, CURLOPT_COOKIEFILE, $cookie_file);
+        curl_setopt($req, CURLOPT_RETURNTRANSFER, TRUE);
+        $res = curl_exec($req);
+        curl_close($req);
+        file_put_contents($filename, $res);
       }
 
-      // Download the file.
-      $req = curl_init(STUDIP_RSS_SOURCE. "sendfile.php?force_download=1&type=0&file_id=" . urlencode($match[1]));
-      curl_setopt($req, CURLOPT_COOKIEJAR, $cookie_file);
-      curl_setopt($req, CURLOPT_COOKIEFILE, $cookie_file);
-      curl_setopt($req, CURLOPT_RETURNTRANSFER, TRUE);
-      $res = curl_exec($req);
-      curl_close($req);
-      file_put_contents($filename, $res);
+      $filesize = filesize($filename);
+
+      $finfo = finfo_open(FILEINFO_MIME_TYPE);
+      $filetype = finfo_file($finfo, $filename);
+      finfo_close($finfo);
+
+      print "    <item>\n";
+      print "      <title>" . $match[2] . "</title>\n";
+      print "      <link>" . STUDIP_RSS_BASE . $filename . "</link>\n";
+      print "      <guid isPermaLink=\"false\">" . $match[1] . "</guid>\n";
+      print "      <enclosure url=\"" . STUDIP_RSS_BASE . $filename . "\" length=\"" . $filesize . "\" type=\"" . $filetype . "\" />\n";
+      print "    </item>\n";
     }
   }
 }
