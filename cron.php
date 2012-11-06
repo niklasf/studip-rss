@@ -1,26 +1,25 @@
 <?php
 
-error_reporting(E_ALL);
 require 'config.php';
 
 // Function to flatten a string.
 function flatten($str) {
   $str = html_entity_decode(stripslashes($str), ENT_QUOTES, 'UTF-8');
-  $str2 = '';
-  $ar = preg_split('/(?<!^)(?!$)/u', $str);  // return array of every multi-byte character
+  $result = '';
+  $ar = preg_split('/(?<!^)(?!$)/u', $str);
   foreach ($ar as $c) {
     $o = ord($c);
-    if ( (strlen($c) > 1) || // multi-byte [unicode]
-         ($o <32 || $o > 126) || // <- control / latin weirdos ->
-         ($o >33 && $o < 40) || // quotes + ambersand
-         ($o >59 && $o < 63) // html
+    if ( (strlen($c) > 1) ||
+         ($o <32 || $o > 126) ||
+         ($o >33 && $o < 40) ||
+         ($o >59 && $o < 63)
        )
     {
       $c = mb_encode_numericentity($c, array(0x0, 0xffff, 0, 0xffff), 'UTF-8');
     }
-    $str2 .= $c;
+    $result .= $c;
   }
-  return $str2;
+  return $result;
 }
 
 // Create a cookie file.
