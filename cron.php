@@ -21,7 +21,7 @@ $security_token = $xpath->query("//input[@name='security_token']/@value")->item(
 $login_ticket = $xpath->query("//input[@name='login_ticket']/@value")->item(0)->textContent;
 
 // Login.
-$req = curl_init("https://studip.tu-clausthal.de/index.php?again=yes");
+$req = curl_init(STUDIP_RSS_SOURCE . "index.php?again=yes");
 curl_setopt($req, CURLOPT_COOKIEJAR, $cookie_file);
 curl_setopt($req, CURLOPT_COOKIEFILE, $cookie_file);
 curl_setopt($req, CURLOPT_RETURNTRANSFER, TRUE);
@@ -35,8 +35,19 @@ curl_setopt($req, CURLOPT_POSTFIELDS, array(
 $res = curl_exec($req);
 curl_close($req);
 
+print "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n";
+print "\n";
+print "<rss version=\"2.0\">\n";
+print "  <channel>\n";
+print "    <title>StudIP</title>\n";
+print "    <link>" . STUDIP_RSS_SOURCE . "index.php?again=yes</link>\n";
+print "    <description>Dateien aus dem StudIP.</description>\n";
+print "    <lastBuildDate>" . date('r') . "</lastBuildDate>\n";
+print "    <pubDate>" . date('r') . "</pubDate>\n";
+print "    <image>\n";
+
 // Load seminar list.
-$req = curl_init("https://studip.tu-clausthal.de/meine_seminare.php");
+$req = curl_init(STUDIP_RSS_SOURCE . "meine_seminare.php");
 curl_setopt($req, CURLOPT_COOKIEJAR, $cookie_file);
 curl_setopt($req, CURLOPT_COOKIEFILE, $cookie_file);
 curl_setopt($req, CURLOPT_RETURNTRANSFER, TRUE);
@@ -45,16 +56,9 @@ curl_close($req);
 preg_match_all('/\"seminar_main\.php\?auswahl=([0-9a-f]+)\"/', $res, $matches);
 
 // Iterate over all seminars.
-$skip = true;
 foreach ($matches[1] as $auswahl) {
-  // TODO: Do not skip the first entry.
-  if ($skip) {
-    $skip = false;
-    continue;
-  }
-
   // Load the main seminar page.
-  $req = curl_init("https://studip.tu-clausthal.de/seminar_main.php?auswahl=" . urlencode($auswahl));
+  $req = curl_init(STUDIP_RSS_SOURCE . "seminar_main.php?auswahl=" . urlencode($auswahl));
   curl_setopt($req, CURLOPT_COOKIEJAR, $cookie_file);
   curl_setopt($req, CURLOPT_COOKIEFILE, $cookie_file);
   curl_setopt($req, CURLOPT_RETURNTRANSFER, TRUE);
@@ -64,15 +68,33 @@ foreach ($matches[1] as $auswahl) {
   // Extract the folder id.
   if (preg_match('/\"folder.php\?cid=([0-9a-f]+)&/', $res, $match)) {
     // Load the folder page.
-    $req = curl_init("https://studip.tu-clausthal.de/folder.php?cid=" . urlencode($match[1]) . "&data%5Bcmd%5D=tree&cmd=all");
+    $req = curl_init(STUDIP_RSS_SOURCE . "folder.php?cid=" . urlencode($match[1]) . "&data%5Bcmd%5D=tree&cmd=all");
     curl_setopt($req, CURLOPT_COOKIEJAR, $cookie_file);
     curl_setopt($req, CURLOPT_COOKIEFILE, $cookie_file);
     curl_setopt($req, CURLOPT_RETURNTRANSFER, TRUE);
     $res = curl_exec($req);
-    print $res;
     curl_close($req);
+
+    // Find all download links.
+    preg_match_all('/\<span id=\"file_([0-9a-f]+)_header.*?\>(.*?)\<\/span>.*?\<a.*?\>(.*?)\<\/a\>/', $res, $matches, PREG_SET_ORDER);
+    foreach ($matches as $match) {
+      $filename = "files/" . $match[1];
+
+      // Skip existing files.
+      if (file_exists($filename)) {
+        continue;
+      }
+
+      // Download the file.
+      $req = curl_init(STUDIP_RSS_SOURCE. "sendfile.php?force_download=1&type=0&file_id=" . urlencode($match[1]));
+      curl_setopt($req, CURLOPT_COOKIEJAR, $cookie_file);
+      curl_setopt($req, CURLOPT_COOKIEFILE, $cookie_file);
+      curl_setopt($req, CURLOPT_RETURNTRANSFER, TRUE);
+      $res = curl_exec($req);
+      curl_close($req);
+      file_put_contents($filename, $res);
+    }
   }
-  break;
 }
 
 // Delete the cookie file.
