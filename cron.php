@@ -62,7 +62,7 @@ preg_match_all('/\"seminar_main\.php\?auswahl=([0-9a-f]+)\".*?>(.*?)<\/a>/s', $r
 // Iterate over all seminars.
 foreach ($matches as $match) {
   $auswahl = $match[1];
-  $seminar = trim($match[2]);
+  $seminar = html_entity_decode(trim($match[2]));
 
   // Load the main seminar page.
   $req = curl_init(STUDIP_RSS_SOURCE . "seminar_main.php?auswahl=" . urlencode($auswahl));
@@ -107,7 +107,7 @@ foreach ($matches as $match) {
       $description = "";
 
       print "    <item>\n";
-      print "      <title>[$seminar] " . $match[2] . "</title>\n";
+      print "      <title>[$seminar] " . html_entity_decode($match[2]) . "</title>\n";
       print "      <link>" . STUDIP_RSS_BASE . $filename . "</link>\n";
       print "      <guid isPermaLink=\"false\">" . $match[1] . "</guid>\n";
       print "      <enclosure url=\"" . STUDIP_RSS_BASE . $filename . "\" length=\"" . $filesize . "\" type=\"" . $filetype . "\" />\n";
