@@ -57,10 +57,13 @@ curl_setopt($req, CURLOPT_COOKIEFILE, $cookie_file);
 curl_setopt($req, CURLOPT_RETURNTRANSFER, TRUE);
 $res = curl_exec($req);
 curl_close($req);
-preg_match_all('/\"seminar_main\.php\?auswahl=([0-9a-f]+)\"/', $res, $matches);
+preg_match_all('/\"seminar_main\.php\?auswahl=([0-9a-f]+)\".*?>(.*?)<\/a>/s', $res, $matches, PREG_SET_ORDER);
 
 // Iterate over all seminars.
-foreach ($matches[1] as $auswahl) {
+foreach ($matches as $match) {
+  $auswahl = $match[1];
+  $seminar = trim($match[2]);
+
   // Load the main seminar page.
   $req = curl_init(STUDIP_RSS_SOURCE . "seminar_main.php?auswahl=" . urlencode($auswahl));
   curl_setopt($req, CURLOPT_COOKIEJAR, $cookie_file);
@@ -101,11 +104,14 @@ foreach ($matches[1] as $auswahl) {
       $filetype = finfo_file($finfo, $filename);
       finfo_close($finfo);
 
+      $description = "";
+
       print "    <item>\n";
-      print "      <title>" . $match[2] . "</title>\n";
+      print "      <title>[$seminar] " . $match[2] . "</title>\n";
       print "      <link>" . STUDIP_RSS_BASE . $filename . "</link>\n";
       print "      <guid isPermaLink=\"false\">" . $match[1] . "</guid>\n";
       print "      <enclosure url=\"" . STUDIP_RSS_BASE . $filename . "\" length=\"" . $filesize . "\" type=\"" . $filetype . "\" />\n";
+      print "      <description>$description</description>\n";
       print "    </item>\n";
     }
   }
