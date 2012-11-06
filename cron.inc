@@ -134,6 +134,7 @@ foreach ($matches as $match) {
       print "      <enclosure url=\"" . STUDIP_RSS_BASE . $filename . "\" length=\"" . $filesize . "\" type=\"" . $filetype . "\" />\n";
       print "      <description>$description</description>\n";
       print "      <pubDate>" . date('r', $pubdate) . "</pubDate>\n";
+      print "      <author>" . flatten(preg_replace('/\s\s+/', ' ', $match[3])) . "</author>\n";
       print "    </item>\n";
     }
   }
