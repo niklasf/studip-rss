@@ -102,8 +102,9 @@ foreach ($matches as $match) {
     curl_close($req);
 
     // Find all download links.
-    preg_match_all('/\<span id=\"file_([0-9a-f]+)_header.*?\>(.*?)\<\/span>.*?\<a.*?\>(.*?)\<\/a\>/', $res, $matches, PREG_SET_ORDER);
+    preg_match_all('/\<span id=\"file_([0-9a-f]+)_header.*?\>(.*?)\<\/span>.*?\<a.*?\>(.*?)\<\/a\>\s*?(\d\d.\d\d.\d\d\d\d) - (\d\d):(\d\d)/', $res, $matches, PREG_SET_ORDER);
     foreach ($matches as $match) {
+      $pubdate = strtotime($match[4]) + 60 * intval($match[5]) + intval($match[6]);
       $filename = "files/" . $match[1];
 
       // Download the file.
@@ -123,6 +124,7 @@ foreach ($matches as $match) {
       $filetype = finfo_file($finfo, $filename);
       finfo_close($finfo);
 
+      // TODO: Read the description.
       $description = "";
 
       print "    <item>\n";
@@ -131,6 +133,7 @@ foreach ($matches as $match) {
       print "      <guid isPermaLink=\"false\">" . $match[1] . "</guid>\n";
       print "      <enclosure url=\"" . STUDIP_RSS_BASE . $filename . "\" length=\"" . $filesize . "\" type=\"" . $filetype . "\" />\n";
       print "      <description>$description</description>\n";
+      print "      <pubDate>" . date('r', $pubdate) . "</pubDate>\n";
       print "    </item>\n";
     }
   }
