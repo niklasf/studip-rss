@@ -45,6 +45,10 @@ print "    <description>Dateien aus dem StudIP.</description>\n";
 print "    <lastBuildDate>" . date('r') . "</lastBuildDate>\n";
 print "    <pubDate>" . date('r') . "</pubDate>\n";
 print "    <image>\n";
+print "      <url>" . STUDIP_RSS_BASE . "logo.png</url>\n";
+print "      <title>StudIP</title>\n";
+print "      <link>" . STUDIP_RSS_SOURCE . "index.php?again=yes</link>\n";
+print "    </image>\n";
 
 // Load seminar list.
 $req = curl_init(STUDIP_RSS_SOURCE . "meine_seminare.php");
@@ -96,6 +100,9 @@ foreach ($matches[1] as $auswahl) {
     }
   }
 }
+
+print "  </channel>\n";
+print "</rss>\n";
 
 // Delete the cookie file.
 unlink($cookie_file);
