@@ -29,6 +29,7 @@ $cookie_file = tempnam(STUDIP_RSS_TEMPDIR, "studip-rss-");
 $req = curl_init("https://studip.tu-clausthal.de/index.php?again=yes");
 curl_setopt($req, CURLOPT_COOKIEJAR, $cookie_file);
 curl_setopt($req, CURLOPT_RETURNTRANSFER, TRUE);
+curl_setopt($req, CURLOPT_SSL_VERIFYPEER, FALSE);
 $res = curl_exec($req);
 curl_close($req);
 
@@ -44,6 +45,7 @@ $req = curl_init(STUDIP_RSS_SOURCE . "index.php?again=yes");
 curl_setopt($req, CURLOPT_COOKIEJAR, $cookie_file);
 curl_setopt($req, CURLOPT_COOKIEFILE, $cookie_file);
 curl_setopt($req, CURLOPT_RETURNTRANSFER, TRUE);
+curl_setopt($req, CURLOPT_SSL_VERIFYPEER, FALSE);
 curl_setopt($req, CURLOPT_POSTFIELDS, array(
   "security_token" => $security_token,
   "login_ticket" => $login_ticket,
@@ -74,6 +76,7 @@ $req = curl_init(STUDIP_RSS_SOURCE . "meine_seminare.php");
 curl_setopt($req, CURLOPT_COOKIEJAR, $cookie_file);
 curl_setopt($req, CURLOPT_COOKIEFILE, $cookie_file);
 curl_setopt($req, CURLOPT_RETURNTRANSFER, TRUE);
+curl_setopt($req, CURLOPT_SSL_VERIFYPEER, FALSE);
 $res = curl_exec($req);
 curl_close($req);
 preg_match_all('/\"seminar_main\.php\?auswahl=([0-9a-f]+)\".*?>(.*?)<\/a>/s', $res, $matches, PREG_SET_ORDER);
@@ -88,6 +91,7 @@ foreach ($matches as $match) {
   curl_setopt($req, CURLOPT_COOKIEJAR, $cookie_file);
   curl_setopt($req, CURLOPT_COOKIEFILE, $cookie_file);
   curl_setopt($req, CURLOPT_RETURNTRANSFER, TRUE);
+  curl_setopt($req, CURLOPT_SSL_VERIFYPEER, FALSE);
   $res = curl_exec($req);
   curl_close($req);
 
@@ -98,6 +102,7 @@ foreach ($matches as $match) {
     curl_setopt($req, CURLOPT_COOKIEJAR, $cookie_file);
     curl_setopt($req, CURLOPT_COOKIEFILE, $cookie_file);
     curl_setopt($req, CURLOPT_RETURNTRANSFER, TRUE);
+    curl_setopt($req, CURLOPT_SSL_VERIFYPEER, TRUE);
     $res = curl_exec($req);
     curl_close($req);
 
@@ -113,6 +118,7 @@ foreach ($matches as $match) {
         curl_setopt($req, CURLOPT_COOKIEJAR, $cookie_file);
         curl_setopt($req, CURLOPT_COOKIEFILE, $cookie_file);
         curl_setopt($req, CURLOPT_RETURNTRANSFER, TRUE);
+        curl_setopt($req, CURLOPT_SSL_VERIFYPEER, TRUE);
         $res = curl_exec($req);
         curl_close($req);
         file_put_contents($filename, $res);
