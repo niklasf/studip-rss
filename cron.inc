@@ -129,9 +129,9 @@ foreach ($matches as $match) {
 
       print "    <item>\n";
       print "      <title>[$seminar] " . flatten($match[2]) . "</title>\n";
-      print "      <link>" . STUDIP_RSS_BASE . $filename . "</link>\n";
+      print "      <link>" . STUDIP_RSS_BASE . "download.php?file={$match[1]}</link>\n";
       print "      <guid isPermaLink=\"false\">" . $match[1] . "</guid>\n";
-      print "      <enclosure url=\"" . STUDIP_RSS_BASE . $filename . "\" length=\"" . $filesize . "\" type=\"" . $filetype . "\" />\n";
+      print "      <enclosure url=\"" . STUDIP_RSS_BASE . "download.php?file={$match[1]}\" length=\"$filesize\" type=\"$filetype\" />\n";
       print "      <description>$description</description>\n";
       print "      <pubDate>" . date('r', $pubdate) . "</pubDate>\n";
       print "      <author>" . flatten(preg_replace('/\s\s+/', ' ', $match[3])) . "</author>\n";
