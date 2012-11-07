@@ -102,7 +102,7 @@ foreach ($matches as $match) {
     curl_setopt($req, CURLOPT_COOKIEJAR, $cookie_file);
     curl_setopt($req, CURLOPT_COOKIEFILE, $cookie_file);
     curl_setopt($req, CURLOPT_RETURNTRANSFER, TRUE);
-    curl_setopt($req, CURLOPT_SSL_VERIFYPEER, TRUE);
+    curl_setopt($req, CURLOPT_SSL_VERIFYPEER, FALSE);
     $res = curl_exec($req);
     curl_close($req);
 
@@ -118,7 +118,7 @@ foreach ($matches as $match) {
         curl_setopt($req, CURLOPT_COOKIEJAR, $cookie_file);
         curl_setopt($req, CURLOPT_COOKIEFILE, $cookie_file);
         curl_setopt($req, CURLOPT_RETURNTRANSFER, TRUE);
-        curl_setopt($req, CURLOPT_SSL_VERIFYPEER, TRUE);
+        curl_setopt($req, CURLOPT_SSL_VERIFYPEER, FALSE);
         $res = curl_exec($req);
         curl_close($req);
         file_put_contents($filename, $res);
